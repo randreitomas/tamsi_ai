@@ -8,6 +8,7 @@ import {
 
 const GAUGE_TOP = 4.0;
 const GAUGE_BOTTOM = 2.0;
+const GAUGE_GRADIENT = "linear-gradient(180deg, #1e8a4c 0%, #7db36a 38%, #e7c44e 62%, #d98c3a 82%, #c0392b 100%)";
 
 function gwaToPercent(gwa: number): number {
   const clamped = Math.min(Math.max(gwa, GAUGE_BOTTOM), GAUGE_TOP);
@@ -43,7 +44,10 @@ export function StandingGauge({ cumulativeGwa, totalCompletedUnits, academicYear
         Cumulative GWA · {totalCompletedUnits} units · {academicYearLabel}
       </div>
       <div className="relative mx-auto h-[330px] w-full">
-        <div className="absolute left-1/2 h-full w-3.5 -translate-x-1/2 rounded-full bg-gradient-to-b from-[#1e8a4c] via-[#7db36a] via-[38%] via-[#e7c44e] via-[62%] via-[#d98c3a] via-[82%] to-[#c0392b] opacity-90" />
+        <div
+          className="absolute left-1/2 h-full w-3.5 -translate-x-1/2 rounded-full opacity-90"
+          style={{ background: GAUGE_GRADIENT }}
+        />
 
         {markers.map((marker) => (
           <div
@@ -67,7 +71,7 @@ export function StandingGauge({ cumulativeGwa, totalCompletedUnits, academicYear
               style={{ top: animated ? `${studentPercent}%` : "100%" }}
             >
               <span className="block font-mono text-xl font-bold leading-none text-[#0a4d21]">{cumulativeGwa.toFixed(2)}</span>
-              <span className="text-[10px] uppercase tracking-[0.08em] text-[#5c6b5e]">You</span>
+              <span className="mt-1 block text-[10px] uppercase leading-none tracking-[0.08em] text-[#5c6b5e]">You</span>
             </div>
           </>
         ) : null}

@@ -38,7 +38,7 @@ export function AdvicePanel({ advice, loading, error, connected, onRetry }: Advi
         </div>
       ) : advice ? (
         <div
-          className="space-y-3 text-sm leading-7 text-[#2c3f31] [&_.target]:rounded-[5px] [&_.target]:bg-[#fbe8a6] [&_.target]:px-1.5 [&_.target]:py-px [&_.target]:font-mono [&_.target]:font-bold [&_.target]:text-[#6b5300] [&_b]:text-[#0a4d21]"
+          className="space-y-3 text-left text-sm leading-7 text-[#2c3f31] [&_p+p]:mt-3 [&_.target]:rounded-[5px] [&_.target]:bg-[#fbe8a6] [&_.target]:px-1.5 [&_.target]:py-px [&_.target]:font-mono [&_.target]:font-bold [&_.target]:text-[#6b5300] [&_b]:font-bold [&_b]:text-[#0a4d21]"
           dangerouslySetInnerHTML={{ __html: formatAdviceHtml(advice) }}
         />
       ) : (

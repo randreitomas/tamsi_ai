@@ -1,5 +1,10 @@
-import { extractionPrompt } from "../prompts";
-import { parseExtractionJson, type AcademicExtractor, type ExtractGradeReportInput } from "../extraction";
+import { extractionPrompt, extractionRetryPrompt } from "../prompts";
+import {
+  isEmptyTermsExtractionError,
+  parseExtractionJson,
+  type AcademicExtractor,
+  type ExtractGradeReportInput
+} from "../extraction";
 import { callCodexResponses, getDefaultCodexApiBaseUrl } from "../chatgpt-oauth/codex-responses";
 import { generateWithChatGptAccount } from "../chatgpt-oauth/generate";
 import { toChatGptCredentials } from "../chatgpt-oauth/session";
@@ -21,7 +26,25 @@ export class ChatGptOAuthVisionExtractor implements AcademicExtractor {
       throw new Error("ChatGPT OAuth credentials are required for extraction.");
     }
 
-    const result = await generateWithChatGptAccount({
+    try {
+      const result = await this.requestExtraction(credentials, input, extractionPrompt);
+      return parseExtractionJson(result);
+    } catch (error) {
+      if (!isEmptyTermsExtractionError(error)) {
+        throw error;
+      }
+
+      const retryResult = await this.requestExtraction(credentials, input, extractionRetryPrompt);
+      return parseExtractionJson(retryResult);
+    }
+  }
+
+  private async requestExtraction(
+    credentials: ChatGPTOAuthCredentials,
+    input: ExtractGradeReportInput,
+    prompt: string
+  ) {
+    return generateWithChatGptAccount({
       credentials,
       preferredModel: this.config.model,
       run: async (modelId) =>
@@ -35,7 +58,7 @@ export class ChatGptOAuthVisionExtractor implements AcademicExtractor {
               content: [
                 {
                   type: "input_text",
-                  text: `${extractionPrompt}\n\nExtract every visible SOLAR Grade Report row from the attached screenshot. Return at least one term with one or more courses. OUTPUT ONLY JSON.`
+                  text: `${prompt}\n\nExtract every visible SOLAR Grade Report row from the attached screenshot. Return at least one term with one or more courses. OUTPUT ONLY JSON.`
                 },
                 {
                   type: "input_image",
@@ -47,8 +70,6 @@ export class ChatGptOAuthVisionExtractor implements AcademicExtractor {
           ]
         })
     });
-
-    return parseExtractionJson(result);
   }
 }
 

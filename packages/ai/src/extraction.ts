@@ -57,12 +57,8 @@ export function parseExtractionJson(text: string): SolarExtraction {
     return solarExtractionSchema.parse(normalized);
   } catch (error) {
     if (error instanceof ZodError) {
-      const emptyTerms = error.issues.some((issue) => issue.path[0] === "terms" && issue.code === "too_small");
-
-      if (emptyTerms) {
-        throw new Error(
-          "Vision did not detect any SOLAR grade rows. Upload a clear, uncropped SOLAR Grade Report screenshot and try again."
-        );
+      if (hasEmptyTermsIssue(error)) {
+        throw new Error(buildEmptyTermsErrorMessage());
       }
 
       throw new Error(formatExtractionValidationError(error));
@@ -72,33 +68,165 @@ export function parseExtractionJson(text: string): SolarExtraction {
   }
 }
 
+export function isEmptyTermsExtractionError(error: unknown): boolean {
+  return error instanceof Error && error.message === buildEmptyTermsErrorMessage();
+}
+
 function normalizeExtractionPayload(payload: unknown): unknown {
-  if (!isRecord(payload) || !Array.isArray(payload.terms)) {
-    return payload;
+  const unwrapped = unwrapExtractionPayload(payload);
+
+  if (!isRecord(unwrapped) || !Array.isArray(unwrapped.terms)) {
+    return unwrapped;
   }
 
   return {
-    ...payload,
-    terms: payload.terms.map((term) => {
-      if (!isRecord(term) || !Array.isArray(term.courses)) {
-        return term;
-      }
+    ...unwrapped,
+    terms: unwrapped.terms
+      .map((term) => normalizeTerm(term))
+      .filter((term): term is Record<string, unknown> => term !== null)
+  };
+}
 
+function unwrapExtractionPayload(payload: unknown): unknown {
+  if (Array.isArray(payload)) {
+    if (payload.length === 0) {
+      return { terms: [] };
+    }
+
+    const first = payload[0];
+    if (isRecord(first) && Array.isArray(first.courses)) {
+      return { terms: payload };
+    }
+
+    if (isRecord(first) && readCourseCode(first)) {
       return {
-        ...term,
-        courses: term.courses.map((course) => {
-          if (!isRecord(course)) {
-            return course;
+        terms: [
+          {
+            term: "Unknown term",
+            courses: payload
           }
-
-          return {
-            ...course,
-            status: inferCourseStatus(course)
-          };
-        })
+        ]
       };
+    }
+
+    return { terms: [] };
+  }
+
+  if (!isRecord(payload)) {
+    return payload;
+  }
+
+  for (const key of ["data", "result", "gradeReport", "grade_report", "extraction", "response"]) {
+    if (key in payload) {
+      const nested = unwrapExtractionPayload(payload[key]);
+      if (isRecord(nested) && Array.isArray(nested.terms) && nested.terms.length > 0) {
+        return nested;
+      }
+    }
+  }
+
+  if (Array.isArray(payload.terms) && payload.terms.length > 0) {
+    return payload;
+  }
+
+  if (Array.isArray(payload.courses) && payload.courses.length > 0) {
+    return {
+      terms: [
+        {
+          term: readTermLabel(payload) ?? "Unknown term",
+          courses: payload.courses
+        }
+      ]
+    };
+  }
+
+  if (readTermLabel(payload) && Array.isArray(payload.courses)) {
+    return { terms: [payload] };
+  }
+
+  return payload;
+}
+
+function normalizeTerm(term: unknown): Record<string, unknown> | null {
+  if (!isRecord(term) || !Array.isArray(term.courses)) {
+    return null;
+  }
+
+  const courses = term.courses
+    .map((course) => normalizeCourse(course))
+    .filter((course): course is Record<string, unknown> => course !== null);
+
+  if (courses.length === 0) {
+    return null;
+  }
+
+  return {
+    ...term,
+    term: readTermLabel(term) ?? "Unknown term",
+    courses
+  };
+}
+
+function normalizeCourse(course: unknown): Record<string, unknown> | null {
+  if (!isRecord(course)) {
+    return null;
+  }
+
+  const code = readCourseCode(course);
+  const title = readCourseTitle(course);
+
+  if (!code || !title) {
+    return null;
+  }
+
+  const normalized = {
+    ...course,
+    code,
+    title,
+    units: course.units ?? course.unit ?? course.credits ?? course.credit,
+    midterm: course.midterm ?? course.mid ?? course.midTerm ?? course.mid_term,
+    final: course.final ?? course.finalGrade ?? course.final_grade,
+    status: inferCourseStatus({
+      ...course,
+      midterm: course.midterm ?? course.mid ?? course.midTerm ?? course.mid_term,
+      final: course.final ?? course.finalGrade ?? course.final_grade
     })
   };
+
+  return normalized;
+}
+
+function readTermLabel(record: Record<string, unknown>): string | null {
+  for (const key of ["term", "termLabel", "term_label", "label", "name", "schoolYear", "school_year"]) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return null;
+}
+
+function readCourseCode(course: Record<string, unknown>): string | null {
+  for (const key of ["code", "courseCode", "course_code", "course"]) {
+    const value = course[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return null;
+}
+
+function readCourseTitle(course: Record<string, unknown>): string | null {
+  for (const key of ["title", "courseTitle", "course_title", "name", "description"]) {
+    const value = course[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return null;
 }
 
 function inferCourseStatus(course: Record<string, unknown>) {
@@ -152,8 +280,25 @@ function readNullableNumber(value: unknown): number | null {
     return null;
   }
 
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed === "-" || trimmed === "—") {
+      return null;
+    }
+
+    value = Number(trimmed.replace(/,/g, ""));
+  }
+
   const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function hasEmptyTermsIssue(error: ZodError): boolean {
+  return error.issues.some((issue) => issue.path[0] === "terms" && issue.code === "too_small");
+}
+
+function buildEmptyTermsErrorMessage(): string {
+  return "Vision did not detect any SOLAR grade rows. Open SOLAR → Grade Report (not Class Schedule), capture the full table with COURSE CODE, TITLE, UNITS, MIDTERM, and FINAL visible, then upload a clear uncropped screenshot.";
 }
 
 function formatExtractionValidationError(error: ZodError): string {

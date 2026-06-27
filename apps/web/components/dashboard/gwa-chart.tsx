@@ -6,6 +6,7 @@ import { FEU_HONORS_THRESHOLDS } from "@tamsi/academic-engine";
 const CHART_MIN = 3.0;
 const CHART_MAX = 4.0;
 const PLOT_HEIGHT = 180;
+const LABEL_MIN_GAP = 15;
 
 function gwaToHeight(gwa: number): number {
   const clamped = Math.min(Math.max(gwa, CHART_MIN), CHART_MAX);
@@ -20,6 +21,33 @@ function formatGwa(value: number | null): string {
   return value.toFixed(2);
 }
 
+type ChartAnnotation = {
+  id: string;
+  bottom: number;
+  label: string;
+  lineClassName: string;
+  labelClassName: string;
+};
+
+function layoutAnnotationLabels(annotations: ChartAnnotation[]) {
+  const sorted = [...annotations].sort((left, right) => right.bottom - left.bottom);
+  const placed: Array<ChartAnnotation & { labelBottom: number }> = [];
+
+  for (const annotation of sorted) {
+    let labelBottom = annotation.bottom;
+
+    for (const previous of placed) {
+      if (Math.abs(labelBottom - previous.labelBottom) < LABEL_MIN_GAP) {
+        labelBottom = previous.labelBottom - LABEL_MIN_GAP;
+      }
+    }
+
+    placed.push({ ...annotation, labelBottom });
+  }
+
+  return placed;
+}
+
 type GwaChartProps = {
   cumulativeGwa: number | null;
   totalCompletedUnits: number;
@@ -28,6 +56,34 @@ type GwaChartProps = {
 
 export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChartProps) {
   const cumulativeLine = cumulativeGwa !== null ? gwaToHeight(cumulativeGwa) : null;
+
+  const annotations = layoutAnnotationLabels(
+    [
+      {
+        id: "magna",
+        bottom: gwaToHeight(FEU_HONORS_THRESHOLDS.magnaCumLaude),
+        label: `Magna ${FEU_HONORS_THRESHOLDS.magnaCumLaude.toFixed(1)}`,
+        lineClassName: "border-dashed border-[#9ab394]",
+        labelClassName: "text-[#5c6b5e] bg-white"
+      },
+      cumulativeLine !== null
+        ? {
+            id: "you",
+            bottom: cumulativeLine,
+            label: `You ${cumulativeGwa?.toFixed(2)}`,
+            lineClassName: "border-solid border-[#f5b800]",
+            labelClassName: "rounded bg-[#fbe8a6] text-[#6b5300]"
+          }
+        : null,
+      {
+        id: "cum-laude",
+        bottom: gwaToHeight(FEU_HONORS_THRESHOLDS.cumLaude),
+        label: `Cum Laude ${FEU_HONORS_THRESHOLDS.cumLaude.toFixed(1)}`,
+        lineClassName: "border-dashed border-[#c77a12]",
+        labelClassName: "text-[#c77a12] bg-white"
+      }
+    ].filter((annotation): annotation is ChartAnnotation => annotation !== null)
+  );
 
   return (
     <section>
@@ -55,71 +111,90 @@ export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChart
         </div>
       </div>
 
-      <div className="relative pl-[34px]">
-        <div className="absolute left-0 top-0 h-[180px] w-[30px]">
-          <span className="absolute bottom-full right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">4.0</span>
-          <span className="absolute bottom-[60%] right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.6</span>
-          <span className="absolute bottom-[40%] right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.4</span>
-          <span className="absolute bottom-0 right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.0</span>
-        </div>
-
-        <div className="relative h-[180px] border-b-2 border-[#c9d6c5]">
-          <div className="absolute inset-x-0 z-[1] border-t-[1.5px] border-dashed border-[#9ab394]" style={{ bottom: gwaToHeight(FEU_HONORS_THRESHOLDS.magnaCumLaude) }}>
-            <span className="absolute -top-2 right-0 bg-white px-1 font-mono text-[9px] font-bold text-[#5c6b5e]">Magna {FEU_HONORS_THRESHOLDS.magnaCumLaude}</span>
+      <div className="flex items-start gap-2">
+        <div className="relative min-w-0 flex-1 pl-[34px]">
+          <div className="absolute left-0 top-0 h-[180px] w-[30px]">
+            <span className="absolute bottom-full right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">4.0</span>
+            <span className="absolute bottom-[60%] right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.6</span>
+            <span className="absolute bottom-[40%] right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.4</span>
+            <span className="absolute bottom-0 right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.0</span>
           </div>
-          {cumulativeLine !== null ? (
-            <div className="absolute inset-x-0 z-[2] border-t-[1.5px] border-solid border-[#f5b800]" style={{ bottom: cumulativeLine }}>
-              <span className="absolute -top-2 right-0 rounded bg-[#fbe8a6] px-1 font-mono text-[9px] font-bold text-[#6b5300]">
-                You {cumulativeGwa?.toFixed(2)}
-              </span>
+
+          <div className="relative h-[180px] overflow-visible border-b-2 border-[#c9d6c5]">
+            {annotations.map((annotation) => (
+              <div
+                className={`absolute inset-x-0 border-t-[1.5px] ${annotation.id === "you" ? "z-[2]" : "z-[1]"} ${annotation.lineClassName}`}
+                key={annotation.id}
+                style={{ bottom: annotation.bottom }}
+              />
+            ))}
+
+            <div className="absolute inset-0 z-[3] flex items-end justify-around gap-2 px-1">
+              {terms.map((term) => {
+                const displayGwa = term.inProgress ? term.snapshotGwa : term.gwa;
+                const height = displayGwa !== null ? gwaToHeight(displayGwa) : gwaToHeight(CHART_MIN);
+                const belowHonors = displayGwa !== null && displayGwa < FEU_HONORS_THRESHOLDS.cumLaude;
+
+                return (
+                  <div className="flex h-full min-w-0 flex-1 flex-col items-center justify-end" key={term.term}>
+                    <span
+                      className={
+                        term.inProgress
+                          ? "mb-1 font-mono text-xs font-bold tracking-[1px] text-[#7fa8c9]"
+                          : belowHonors
+                            ? "mb-1 font-mono text-xs font-bold text-[#c77a12]"
+                            : "mb-1 font-mono text-xs font-bold text-[#0a4d21]"
+                      }
+                    >
+                      {term.inProgress ? "···" : formatGwa(displayGwa)}
+                    </span>
+                    <div
+                      className={
+                        term.inProgress
+                          ? "w-[62%] max-w-[44px] min-w-[18px] rounded-t-[7px] border-[1.5px] border-b-0 border-dashed border-[#7fa8c9] bg-[#eef4fa]"
+                          : belowHonors
+                            ? "w-[62%] max-w-[44px] min-w-[18px] rounded-t-[7px] bg-gradient-to-b from-[#e6ac45] to-[#c77a12] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+                            : "w-[62%] max-w-[44px] min-w-[18px] rounded-t-[7px] bg-gradient-to-b from-[#23994f] to-[#0e6b2e] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+                      }
+                      style={{ height: `${Math.max(height, 8)}px` }}
+                    />
+                  </div>
+                );
+              })}
             </div>
-          ) : null}
-          <div className="absolute inset-x-0 z-[1] border-t-[1.5px] border-dashed border-[#c77a12]" style={{ bottom: gwaToHeight(FEU_HONORS_THRESHOLDS.cumLaude) }}>
-            <span className="absolute -top-2 right-0 bg-white px-1 font-mono text-[9px] font-bold text-[#c77a12]">Cum Laude {FEU_HONORS_THRESHOLDS.cumLaude}</span>
           </div>
 
-          <div className="absolute inset-0 z-[3] flex items-end justify-around gap-2 px-1">
-            {terms.map((term) => {
-              const displayGwa = term.inProgress ? term.snapshotGwa : term.gwa;
-              const height = displayGwa !== null ? gwaToHeight(displayGwa) : gwaToHeight(CHART_MIN);
-              const belowHonors = displayGwa !== null && displayGwa < FEU_HONORS_THRESHOLDS.cumLaude;
-
-              return (
-                <div className="flex h-full flex-1 flex-col items-center justify-end" key={term.term}>
-                  <span
-                    className={
-                      term.inProgress
-                        ? "mb-1 font-mono text-xs font-bold tracking-[1px] text-[#7fa8c9]"
-                        : belowHonors
-                          ? "mb-1 font-mono text-xs font-bold text-[#c77a12]"
-                          : "mb-1 font-mono text-xs font-bold text-[#0a4d21]"
-                    }
-                  >
-                    {term.inProgress ? "···" : formatGwa(displayGwa)}
-                  </span>
-                  <div
-                    className={
-                      term.inProgress
-                        ? "w-[62%] max-w-[44px] rounded-t-[7px] border-[1.5px] border-b-0 border-dashed border-[#7fa8c9] bg-[#eef4fa]"
-                        : belowHonors
-                          ? "w-[62%] max-w-[44px] rounded-t-[7px] bg-gradient-to-b from-[#e6ac45] to-[#c77a12]"
-                          : "w-[62%] max-w-[44px] rounded-t-[7px] bg-gradient-to-b from-[#23994f] to-[#0e6b2e]"
-                    }
-                    style={{ height: `${Math.max(height, 8)}px` }}
-                  />
-                </div>
-              );
-            })}
+          <div className="flex justify-around gap-2 px-1 pt-2">
+            {terms.map((term) => (
+              <span className="min-w-0 flex-1 truncate text-center font-mono text-[10px] text-[#5c6b5e]" key={term.term}>
+                {term.shortLabel}
+              </span>
+            ))}
           </div>
         </div>
 
-        <div className="ml-[34px] flex justify-around gap-2 px-1 pt-2">
-          {terms.map((term) => (
-            <span className="flex-1 text-center font-mono text-[10px] text-[#5c6b5e]" key={term.term}>
-              {term.shortLabel}
+        <div className="relative hidden h-[180px] w-[78px] shrink-0 sm:block">
+          {annotations.map((annotation) => (
+            <span
+              className={`absolute right-0 -translate-y-1/2 whitespace-nowrap px-1 font-mono text-[9px] font-bold leading-none ${annotation.labelClassName}`}
+              key={`${annotation.id}-label`}
+              style={{ bottom: annotation.labelBottom }}
+            >
+              {annotation.label}
             </span>
           ))}
         </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2 sm:hidden">
+        {annotations.map((annotation) => (
+          <span
+            className={`rounded-full px-2.5 py-1 font-mono text-[10px] font-bold ${annotation.labelClassName}`}
+            key={`${annotation.id}-mobile`}
+          >
+            {annotation.label}
+          </span>
+        ))}
       </div>
 
       <p className="mt-4 text-[12.5px] leading-6 text-[#5c6b5e]">

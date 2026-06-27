@@ -6,7 +6,11 @@ import { FEU_HONORS_THRESHOLDS } from "@tamsi/academic-engine";
 const CHART_MIN = 3.0;
 const CHART_MAX = 4.0;
 const PLOT_HEIGHT = 180;
+const BAR_WIDTH = 44;
 const LABEL_MIN_GAP = 15;
+
+const BAR_FILL_GOOD = "linear-gradient(180deg, #23994f 0%, #0e6b2e 100%)";
+const BAR_FILL_WARN = "linear-gradient(180deg, #e6ac45 0%, #c77a12 100%)";
 
 function gwaToHeight(gwa: number): number {
   const clamped = Math.min(Math.max(gwa, CHART_MIN), CHART_MAX);
@@ -56,6 +60,7 @@ type GwaChartProps = {
 
 export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChartProps) {
   const cumulativeLine = cumulativeGwa !== null ? gwaToHeight(cumulativeGwa) : null;
+  const termCount = Math.max(terms.length, 1);
 
   const annotations = layoutAnnotationLabels(
     [
@@ -113,55 +118,60 @@ export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChart
 
       <div className="flex items-start gap-2">
         <div className="relative min-w-0 flex-1 pl-[34px]">
-          <div className="absolute left-0 top-0 h-[180px] w-[30px]">
+          <div className="pointer-events-none absolute left-0 top-0 z-[4] h-[180px] w-[30px]">
             <span className="absolute bottom-full right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">4.0</span>
             <span className="absolute bottom-[60%] right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.6</span>
             <span className="absolute bottom-[40%] right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.4</span>
             <span className="absolute bottom-0 right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.0</span>
           </div>
 
-          <div className="relative h-[180px] overflow-visible border-b-2 border-[#c9d6c5]">
+          <div className="relative h-[180px] border-b-2 border-[#c9d6c5]">
             {annotations.map((annotation) => (
               <div
-                className={`absolute inset-x-0 border-t-[1.5px] ${annotation.id === "you" ? "z-[2]" : "z-[1]"} ${annotation.lineClassName}`}
+                className={`pointer-events-none absolute inset-x-0 border-t-[1.5px] ${annotation.id === "you" ? "z-[2]" : "z-[1]"} ${annotation.lineClassName}`}
                 key={annotation.id}
                 style={{ bottom: annotation.bottom }}
               />
             ))}
 
-            <div className="absolute inset-0 z-[3] flex items-end justify-around gap-2 px-1">
-              {terms.map((term) => {
-                const displayGwa = term.inProgress ? term.snapshotGwa : term.gwa;
-                const height = displayGwa !== null ? gwaToHeight(displayGwa) : gwaToHeight(CHART_MIN);
-                const belowHonors = displayGwa !== null && displayGwa < FEU_HONORS_THRESHOLDS.cumLaude;
+            {terms.map((term, index) => {
+              const displayGwa = term.inProgress ? term.snapshotGwa : term.gwa;
+              const barHeight = Math.max(displayGwa !== null ? gwaToHeight(displayGwa) : 8, 8);
+              const belowHonors = displayGwa !== null && displayGwa < FEU_HONORS_THRESHOLDS.cumLaude;
+              const slotCenter = ((index + 0.5) / termCount) * 100;
 
-                return (
-                  <div className="flex h-full min-w-0 flex-1 flex-col items-center justify-end" key={term.term}>
-                    <span
-                      className={
-                        term.inProgress
-                          ? "mb-1 font-mono text-xs font-bold tracking-[1px] text-[#7fa8c9]"
-                          : belowHonors
-                            ? "mb-1 font-mono text-xs font-bold text-[#c77a12]"
-                            : "mb-1 font-mono text-xs font-bold text-[#0a4d21]"
-                      }
-                    >
-                      {term.inProgress ? "···" : formatGwa(displayGwa)}
-                    </span>
-                    <div
-                      className={
-                        term.inProgress
-                          ? "w-[62%] max-w-[44px] min-w-[18px] rounded-t-[7px] border-[1.5px] border-b-0 border-dashed border-[#7fa8c9] bg-[#eef4fa]"
-                          : belowHonors
-                            ? "w-[62%] max-w-[44px] min-w-[18px] rounded-t-[7px] bg-gradient-to-b from-[#e6ac45] to-[#c77a12] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
-                            : "w-[62%] max-w-[44px] min-w-[18px] rounded-t-[7px] bg-gradient-to-b from-[#23994f] to-[#0e6b2e] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
-                      }
-                      style={{ height: `${Math.max(height, 8)}px` }}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+              return (
+                <div
+                  className="absolute bottom-0 z-[3] -translate-x-1/2"
+                  key={term.term}
+                  style={{ left: `${slotCenter}%`, width: BAR_WIDTH }}
+                >
+                  <span
+                    className={
+                      term.inProgress
+                        ? "absolute bottom-full left-1/2 mb-1 block -translate-x-1/2 whitespace-nowrap font-mono text-xs font-bold tracking-[1px] text-[#7fa8c9]"
+                        : belowHonors
+                          ? "absolute bottom-full left-1/2 mb-1 block -translate-x-1/2 whitespace-nowrap font-mono text-xs font-bold text-[#c77a12]"
+                          : "absolute bottom-full left-1/2 mb-1 block -translate-x-1/2 whitespace-nowrap font-mono text-xs font-bold text-[#0a4d21]"
+                    }
+                  >
+                    {term.inProgress ? "···" : formatGwa(displayGwa)}
+                  </span>
+                  <div
+                    className={
+                      term.inProgress
+                        ? "box-border rounded-t-[7px] border-[1.5px] border-b-0 border-dashed border-[#7fa8c9] bg-[#eef4fa]"
+                        : "box-border rounded-t-[7px] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+                    }
+                    style={{
+                      height: barHeight,
+                      width: BAR_WIDTH,
+                      background: term.inProgress ? undefined : belowHonors ? BAR_FILL_WARN : BAR_FILL_GOOD
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex justify-around gap-2 px-1 pt-2">

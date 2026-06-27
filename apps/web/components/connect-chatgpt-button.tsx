@@ -155,7 +155,7 @@ export function ConnectChatGptButton({
               </div>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
               <a href={session.verificationUrl} rel="noreferrer" target="_blank">
                 <Button type="button" variant="primary">
                   <ExternalLink aria-hidden="true" size={16} />
@@ -171,7 +171,7 @@ export function ConnectChatGptButton({
             {error ? <p className="mt-4 text-sm text-[#c0392b]">{error}</p> : null}
 
             <button
-              className="mt-5 text-sm font-semibold text-[#5c6b5e] underline"
+              className="mt-5 block w-full text-center text-sm font-semibold text-[#5c6b5e] underline"
               type="button"
               onClick={() => {
                 setDialogOpen(false);

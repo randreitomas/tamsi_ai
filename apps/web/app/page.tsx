@@ -39,7 +39,7 @@ const previewRows = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#ecf2ea] text-[#0b1f12]">
+    <main className="min-h-screen overflow-x-hidden bg-[#ecf2ea] text-[#0b1f12]">
       <div className="mx-auto w-full max-w-[1080px] px-6">
         <header className="py-12 text-center">
           <div className="mb-4 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#0e6b2e]">
@@ -110,7 +110,7 @@ export default function Home() {
 
           <Card>
             <div className="grid gap-6 p-[22px] lg:grid-cols-[1fr_1.2fr] lg:items-center">
-              <div>
+              <div className="min-w-0">
                 <div className="mb-4 inline-flex items-center gap-2 rounded-lg bg-[#e2efdd] px-3 py-1.5 font-mono text-[12.5px] font-bold text-[#0a4d21]">
                   <CheckCircle2 aria-hidden="true" size={15} />
                   Review-first workflow
@@ -128,7 +128,7 @@ export default function Home() {
                   />
                 </div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <PreviewTable />
                 <p className="mt-4 flex items-start gap-2 text-[12.5px] text-[#5c6b5e]">
                   <PencilLine aria-hidden="true" className="mt-0.5 shrink-0 text-[#0e6b2e]" size={15} />
@@ -156,30 +156,56 @@ export default function Home() {
 
 function PreviewTable() {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[640px] border-collapse text-[13.5px]">
-        <thead>
-          <tr className="border-b border-[#d7e2d4] text-left text-[11px] uppercase tracking-[0.06em] text-[#5c6b5e]">
-            <th className="px-2.5 pb-2.5 font-semibold">Course</th>
-            <th className="px-2.5 pb-2.5 font-semibold">Title</th>
-            <th className="px-2.5 pb-2.5 text-center font-semibold">Units</th>
-            <th className="px-2.5 pb-2.5 text-center font-semibold">Midterm</th>
-            <th className="px-2.5 pb-2.5 text-center font-semibold">Final</th>
-          </tr>
-        </thead>
-        <tbody>
-          {previewRows.map(([code, title, units, midterm, finalGrade]) => (
-            <tr className="border-b border-[#eef3ec] last:border-0" key={code}>
-              <td className="px-2.5 py-3 font-mono text-[12.5px] font-bold text-[#0a4d21]">{code}</td>
-              <td className="px-2.5 py-3">{title}</td>
-              <td className="px-2.5 py-3 text-center font-mono">{units}</td>
-              <td className={`px-2.5 py-3 text-center font-mono font-bold ${gradeClass(midterm)}`}>{midterm}</td>
-              <td className={`px-2.5 py-3 text-center font-mono font-bold ${gradeClass(finalGrade)}`}>{finalGrade}</td>
+    <>
+      <div className="space-y-3 md:hidden">
+        {previewRows.map(([code, title, units, midterm, finalGrade]) => (
+          <div className="rounded-2xl border border-[#d7e2d4] bg-[#fbfdfa] p-4" key={code}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-mono text-[12.5px] font-bold text-[#0a4d21]">{code}</div>
+                <div className="mt-1 text-[13px] leading-5 text-[#0b1f12]">{title}</div>
+              </div>
+              <span className="shrink-0 font-mono text-xs font-semibold text-[#5c6b5e]">{units} u</span>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#eef3ec] pt-3">
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[#5c6b5e]">Midterm</div>
+                <div className={`mt-0.5 font-mono text-sm font-bold ${gradeClass(midterm)}`}>{midterm}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[#5c6b5e]">Final</div>
+                <div className={`mt-0.5 font-mono text-sm font-bold ${gradeClass(finalGrade)}`}>{finalGrade}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="-mx-1 hidden overflow-x-auto px-1 md:block">
+        <table className="w-full min-w-[520px] border-collapse text-[13.5px]">
+          <thead>
+            <tr className="border-b border-[#d7e2d4] text-left text-[11px] uppercase tracking-[0.06em] text-[#5c6b5e]">
+              <th className="px-2.5 pb-2.5 font-semibold">Course</th>
+              <th className="px-2.5 pb-2.5 font-semibold">Title</th>
+              <th className="px-2.5 pb-2.5 text-center font-semibold">Units</th>
+              <th className="px-2.5 pb-2.5 text-center font-semibold">Midterm</th>
+              <th className="px-2.5 pb-2.5 text-center font-semibold">Final</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {previewRows.map(([code, title, units, midterm, finalGrade]) => (
+              <tr className="border-b border-[#eef3ec] last:border-0" key={code}>
+                <td className="px-2.5 py-3 font-mono text-[12.5px] font-bold text-[#0a4d21]">{code}</td>
+                <td className="px-2.5 py-3">{title}</td>
+                <td className="px-2.5 py-3 text-center font-mono">{units}</td>
+                <td className={`px-2.5 py-3 text-center font-mono font-bold ${gradeClass(midterm)}`}>{midterm}</td>
+                <td className={`px-2.5 py-3 text-center font-mono font-bold ${gradeClass(finalGrade)}`}>{finalGrade}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 

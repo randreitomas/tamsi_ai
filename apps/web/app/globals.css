@@ -106,14 +106,6 @@ textarea {
     background: var(--bg);
   }
 
-  .hero-page--landing {
-    padding-top: 52px;
-  }
-
-  .app-shell--workflow {
-    padding-top: 52px;
-  }
-
   .app-shell {
     min-height: 100vh;
     background: var(--bg);
@@ -410,10 +402,6 @@ textarea {
     }
   }
 
-  .hero-page--landing .hero-content {
-    padding-bottom: 48px;
-  }
-
   .landing-how-it-works {
     max-width: var(--layout-max);
     margin: 0 auto;
@@ -444,10 +432,6 @@ textarea {
   }
 
   @media (max-width: 640px) {
-    .hero-page--landing .hero-content {
-      padding-bottom: 32px;
-    }
-
     .landing-how-it-works {
       padding-top: 32px;
       padding-bottom: 48px;
@@ -557,13 +541,13 @@ textarea {
   .hero-content {
     max-width: 800px;
     margin: 0 auto;
-    padding: 96px var(--layout-gutter) 88px;
+    padding: 96px var(--layout-gutter) 48px;
     text-align: center;
   }
 
   @media (max-width: 640px) {
     .hero-content {
-      padding: 56px var(--layout-gutter) 64px;
+      padding: 56px var(--layout-gutter) 32px;
     }
 
     .app-container,

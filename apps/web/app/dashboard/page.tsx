@@ -12,7 +12,6 @@ import { StatusCards } from "../../components/dashboard/status-cards";
 import { AppFooter } from "../../components/app-footer";
 import { PageIntro } from "../../components/page-intro";
 import { SectionCard } from "../../components/section-card";
-import { SiteTopbar } from "../../components/site-topbar";
 import { StartOverButton } from "../../components/start-over-button";
 import { Button } from "../../components/ui/button";
 import {
@@ -145,13 +144,12 @@ export default function DashboardPage() {
   }, [recompute]);
 
   if (!loaded) {
-    return <main className="app-shell app-shell--workflow grid min-h-screen place-items-center text-ink">Computing metrics...</main>;
+    return <main className="app-shell grid min-h-screen place-items-center text-ink">Computing metrics...</main>;
   }
 
   if (!snapshot) {
     return (
-      <div className="app-shell app-shell--workflow">
-        <SiteTopbar variant="fixed" />
+      <div className="app-shell">
         <main className="app-container">
           <div className="workflow-empty-state">
             <div className="workflow-empty-icon">
@@ -174,15 +172,17 @@ export default function DashboardPage() {
   const fingerprint = fingerprintCourses(courses, preferences);
 
   return (
-    <div className="app-shell app-shell--workflow">
-      <SiteTopbar end={<StartOverButton />} variant="fixed" />
-
+    <div className="app-shell">
       <main className="app-container--brief">
         <PageIntro
           description="Tamsi calculated your GWA, scholarship position, and Latin honors using FEU Tech thresholds. Grades stay in this tab only — nothing is saved on our servers."
           eyebrow="Step 4"
           title="Your standing — computed and explained."
         />
+
+        <div className="mb-6 flex justify-center">
+          <StartOverButton />
+        </div>
 
         <div className="grid gap-5">
           <SectionCard

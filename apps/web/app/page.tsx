@@ -1,7 +1,6 @@
 import { AppFooter } from "../components/app-footer";
 import { ConnectChatGptButton } from "../components/connect-chatgpt-button";
 import { LandingPreviewTable } from "../components/landing-preview-table";
-import { SiteTopbar } from "../components/site-topbar";
 
 const processItems = [
   {
@@ -28,20 +27,7 @@ const processItems = [
 
 export default function Home() {
   return (
-    <div className="hero-page hero-page--landing">
-      <SiteTopbar
-        variant="landing"
-        end={
-          <ConnectChatGptButton
-            className="btn-header-cta"
-            connectedHref="/upload"
-            connectedLabel="Continue"
-            label="Get started"
-            variant="primary"
-          />
-        }
-      />
-
+    <div className="hero-page">
       <main className="overflow-x-hidden">
         <section className="hero-content">
           <h1 className="hero-headline text-ink">

@@ -17,7 +17,6 @@ import {
 import { AppFooter } from "../../components/app-footer";
 import { PageIntro } from "../../components/page-intro";
 import { SectionCard } from "../../components/section-card";
-import { SiteTopbar } from "../../components/site-topbar";
 import { Button } from "../../components/ui/button";
 import {
   clearMetricsCache,
@@ -140,13 +139,11 @@ export default function ReviewPage() {
   }
 
   if (!loaded) {
-    return <main className="app-shell app-shell--workflow grid min-h-screen place-items-center text-ink">Loading grades...</main>;
+    return <main className="app-shell grid min-h-screen place-items-center text-ink">Loading grades...</main>;
   }
 
   return (
-    <div className="app-shell app-shell--workflow">
-      <SiteTopbar variant="fixed" />
-
+    <div className="app-shell">
       <main className="app-container--wide">
         <PageIntro
           description="Tap a term, fix anything that looks off, then confirm when you're ready."

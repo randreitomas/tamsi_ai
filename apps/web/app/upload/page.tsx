@@ -7,7 +7,6 @@ import { AppFooter } from "../../components/app-footer";
 import { ConnectChatGptButton } from "../../components/connect-chatgpt-button";
 import { PageIntro } from "../../components/page-intro";
 import { SectionCard } from "../../components/section-card";
-import { SiteTopbar } from "../../components/site-topbar";
 import { Button } from "../../components/ui/button";
 import { StartOverButton } from "../../components/start-over-button";
 import {
@@ -161,23 +160,18 @@ export default function UploadPage() {
   const extractionReady = termCount !== null && termCount > 0;
 
   return (
-    <div className="app-shell app-shell--workflow">
-      <SiteTopbar
-        variant="fixed"
-        end={
-          <div className="site-topbar-end">
-            <StartOverButton />
-            <ConnectChatGptButton className="btn-header-cta" variant="primary" />
-          </div>
-        }
-      />
-
+    <div className="app-shell">
       <main className="app-container--wide">
         <PageIntro
           description="Drop your SOLAR Grade Report screenshots. Tamsi reads the table for you — one term per screenshot works best."
           eyebrow="Step 2"
           title="Upload Grades"
         />
+
+        <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
+          <StartOverButton />
+          <ConnectChatGptButton />
+        </div>
 
         <SectionCard description="A screenshot is enough — phone or desktop." step={2} title="Upload your SOLAR Grade Report">
             <div

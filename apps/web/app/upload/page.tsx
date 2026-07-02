@@ -1,12 +1,14 @@
 "use client";
 
-import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, Lock, UploadCloud, X } from "lucide-react";
-import Link from "next/link";
+import { AlertTriangle, ArrowRight, CheckCircle2, Lock, UploadCloud, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { solarExtractionSchema } from "@tamsi/types";
+import { AppFooter } from "../../components/app-footer";
 import { ConnectChatGptButton } from "../../components/connect-chatgpt-button";
+import { PageIntro } from "../../components/page-intro";
+import { SectionCard } from "../../components/section-card";
+import { SiteTopbar } from "../../components/site-topbar";
 import { Button } from "../../components/ui/button";
-import { Card } from "../../components/ui/card";
 import { StartOverButton } from "../../components/start-over-button";
 import {
   readSessionJSON,
@@ -159,53 +161,39 @@ export default function UploadPage() {
   const extractionReady = termCount !== null && termCount > 0;
 
   return (
-    <main className="min-h-screen bg-[#ecf2ea] px-6 py-10 text-[#0b1f12]">
-      <div className="mx-auto max-w-[1080px]">
-        <header className="mb-9 flex flex-wrap items-center justify-between gap-4">
-          <Link className="inline-flex items-center gap-2 text-sm font-bold text-[#0a4d21]" href="/">
-            <ArrowLeft aria-hidden="true" size={17} />
-            Tamsi
-          </Link>
-          <div className="flex flex-wrap items-center gap-4">
+    <div className="app-shell app-shell--workflow">
+      <SiteTopbar
+        variant="fixed"
+        end={
+          <div className="site-topbar-end">
             <StartOverButton />
-            <ConnectChatGptButton />
+            <ConnectChatGptButton className="btn-header-cta" variant="primary" />
           </div>
-        </header>
+        }
+      />
 
-        <section className="mb-8 text-center">
-          <div className="mb-3 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#0e6b2e]">Step 2</div>
-          <h1 className="mx-auto max-w-[18ch] text-[clamp(32px,5vw,48px)] font-extrabold leading-[1.04] tracking-[-0.02em]">
-            Upload Grades
-          </h1>
-          <p className="mx-auto mt-4 max-w-[58ch] text-lg leading-8 text-[#33483a]">
-            Drop your SOLAR Grade Report screenshots. Tamsi reads the table for you — one term per screenshot works best.
-          </p>
-        </section>
+      <main className="app-container--wide">
+        <PageIntro
+          description="Drop your SOLAR Grade Report screenshots. Tamsi reads the table for you — one term per screenshot works best."
+          eyebrow="Step 2"
+          title="Upload Grades"
+        />
 
-        <Card>
-          <div className="flex items-center gap-3.5 border-b border-[#d7e2d4] bg-gradient-to-b from-[#fcfefb] to-[#f6faf4] px-5 py-[18px]">
-            <span className="grid size-[30px] shrink-0 place-items-center rounded-[9px] bg-[#0e6b2e] font-mono text-[13px] font-bold text-white">2</span>
-            <div>
-              <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Upload your SOLAR Grade Report</h2>
-              <p className="text-[12.5px] text-[#5c6b5e]">A screenshot is enough — phone or desktop.</p>
-            </div>
-          </div>
-
-          <div className="p-[22px]">
+        <SectionCard description="A screenshot is enough — phone or desktop." step={2} title="Upload your SOLAR Grade Report">
             <div
-              className="flex min-h-[220px] flex-wrap items-center gap-6 rounded-2xl border border-dashed border-[#b9cdb3] bg-[#f6faf4] p-6"
+              className="upload-dropzone"
               onDragOver={(event) => event.preventDefault()}
               onDrop={(event) => {
                 event.preventDefault();
                 selectFiles(event.dataTransfer.files);
               }}
             >
-              <div className="grid size-[54px] shrink-0 place-items-center rounded-[14px] bg-[#e2efdd] text-[#0e6b2e]">
+              <div className="upload-dropzone-icon">
                 <UploadCloud aria-hidden="true" size={28} />
               </div>
               <div className="min-w-[240px] flex-1">
                 <b className="text-[15.5px]">Drop your grade reports here</b>
-                <p className="mt-1 text-sm text-[#5c6b5e]">
+                <p className="mt-1 text-sm text-muted">
                   PNG or JPG · include the term dropdown in each screenshot · upload multiple terms at once
                 </p>
                 <div className="mt-5 flex flex-wrap gap-3">
@@ -236,22 +224,19 @@ export default function UploadPage() {
               type="file"
             />
 
-            <p className="mt-4 flex items-center gap-2 text-[12.5px] text-[#5c6b5e]">
-              <Lock aria-hidden="true" className="text-[#0e6b2e]" size={15} />
+            <p className="mt-4 flex items-center gap-2 text-[12.5px] text-muted">
+              <Lock aria-hidden="true" className="text-accent" size={15} />
               Screenshots are read to extract grades, then cleared from this session when you close the tab. Nothing is stored on Tamsi servers.
             </p>
 
             {files.length > 0 ? (
               <ul className="mt-5 space-y-2">
                 {files.map((file) => (
-                  <li
-                    className="flex items-center justify-between gap-3 rounded-[10px] border border-[#d7e2d4] bg-white px-4 py-3 text-sm font-semibold text-[#0b1f12]"
-                    key={`${file.name}-${file.lastModified}`}
-                  >
+                  <li className="workflow-file-item" key={`${file.name}-${file.lastModified}`}>
                     <span className="truncate">{file.name}</span>
                     <button
                       aria-label={`Remove ${file.name}`}
-                      className="grid size-7 shrink-0 place-items-center rounded-md text-[#5c6b5e] transition hover:bg-[#f6faf4] hover:text-[#0a4d21]"
+                      className="grid size-7 shrink-0 place-items-center rounded-md text-muted transition hover:bg-canvas hover:text-accent"
                       onClick={() => removeFile(file)}
                       type="button"
                     >
@@ -262,23 +247,23 @@ export default function UploadPage() {
               </ul>
             ) : null}
 
-            {extractProgress ? <p className="mt-5 text-sm font-semibold text-[#0a4d21]">{extractProgress}</p> : null}
+            {extractProgress ? <p className="mt-5 text-sm font-semibold text-accent-dark">{extractProgress}</p> : null}
 
             {error ? (
-              <p className="mt-5 flex items-start gap-2 rounded-[10px] border border-[#f0c4bc] bg-[#fff0ed] px-4 py-3 text-sm font-bold text-[#9a2f20]">
+              <p className="error-banner mt-5">
                 <AlertTriangle aria-hidden="true" className="mt-0.5 shrink-0" size={16} />
                 {error}
               </p>
             ) : null}
 
             {extractionReady ? (
-              <div className="mt-6 rounded-2xl border border-[#c2e6cd] bg-[#e4f4e9] p-5">
-                <p className="flex items-center gap-2 text-sm font-bold text-[#1e8a4c]">
+              <div className="success-banner mt-6">
+                <p className="flex items-center gap-2 text-sm font-bold text-success">
                   <CheckCircle2 aria-hidden="true" size={18} />
                   Grades read successfully
                 </p>
-                <p className="mt-2 text-sm leading-6 text-[#33483a]">
-                  Tamsi detected <b className="text-[#0a4d21]">{termCount} term{termCount === 1 ? "" : "s"}</b>
+                <p className="mt-2 text-sm leading-6 text-secondary">
+                  Tamsi detected <b className="text-accent-dark">{termCount} term{termCount === 1 ? "" : "s"}</b>
                   {sourceFiles.length > 0 ? (
                     <>
                       {" "}
@@ -290,12 +275,10 @@ export default function UploadPage() {
                   Review and edit anything before we compute your standing.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <Link href="/review">
-                    <Button>
-                      Continue to review
-                      <ArrowRight aria-hidden="true" size={17} />
-                    </Button>
-                  </Link>
+                  <Button href="/review">
+                    Continue to review
+                    <ArrowRight aria-hidden="true" size={17} />
+                  </Button>
                   <Button type="button" variant="secondary" onClick={resetUpload}>
                     Upload again
                   </Button>
@@ -304,14 +287,15 @@ export default function UploadPage() {
             ) : null}
 
             {!oauthReady && uploadStatus && !uploadStatus.chatgptOAuth.mockMode ? (
-              <p className="mt-5 text-sm text-[#5c6b5e]">
+              <p className="mt-5 text-sm text-muted">
                 Connect ChatGPT above before Tamsi can read your screenshots.
               </p>
             ) : null}
-          </div>
-        </Card>
-      </div>
-    </main>
+        </SectionCard>
+      </main>
+
+      <AppFooter />
+    </div>
   );
 }
 
@@ -328,16 +312,16 @@ function mergeUniqueFiles(current: File[], next: File[]): File[] {
 function SolarThumb() {
   return (
     <div
-      className="ml-auto w-[172px] overflow-hidden rounded-[10px] border border-[#d7e2d4] bg-white shadow-[0_6px_18px_rgba(11,31,18,.10)]"
+      className="ml-auto w-[172px] overflow-hidden rounded-lg border border-line bg-elevated shadow-card"
       aria-label="Sample SOLAR grade report screenshot"
     >
-      <div className="flex h-[22px] items-center gap-1 bg-[#0a4d21] px-2">
+      <div className="flex h-[22px] items-center gap-1 bg-accent-dark px-2">
         <i className="size-1.5 rounded-full bg-white/45" />
         <i className="size-1.5 rounded-full bg-white/45" />
         <i className="size-1.5 rounded-full bg-white/45" />
       </div>
       <div className="p-2.5">
-        <div className="mb-1.5 h-[9px] rounded-[3px] bg-[#0e6b2e]/85" />
+        <div className="mb-1.5 h-[9px] rounded-[3px] bg-accent/85" />
         <div className="mb-1.5 h-[9px] rounded-[3px] bg-[#eaf0e8]" />
         <div className="mb-1.5 h-[9px] rounded-[3px] bg-[#eaf0e8]" />
         <div className="mb-1.5 h-[9px] w-[62%] rounded-[3px] bg-[#eaf0e8]" />

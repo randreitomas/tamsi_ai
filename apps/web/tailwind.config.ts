@@ -5,14 +5,34 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        feu: {
-          green: "#006b3f",
-          gold: "#f4c430",
-          ink: "#17211d"
-        }
+        canvas: "var(--bg)",
+        elevated: "var(--bg-elevated)",
+        ink: "var(--text)",
+        secondary: "var(--text-secondary)",
+        muted: "var(--muted)",
+        "muted-light": "var(--muted-light)",
+        accent: "var(--accent)",
+        "accent-dark": "var(--accent-dark)",
+        "accent-light": "var(--accent-light)",
+        danger: "var(--danger)",
+        success: "var(--success)",
+        warning: "var(--warning)",
+        line: "var(--border)"
+      },
+      borderRadius: {
+        pill: "980px",
+        xl: "24px",
+        lg: "18px",
+        DEFAULT: "12px",
+        sm: "8px"
       },
       boxShadow: {
-        soft: "0 24px 70px rgba(23, 33, 29, 0.12)"
+        card: "var(--shadow)",
+        "card-lg": "var(--shadow-lg)",
+        soft: "var(--shadow-sm)"
+      },
+      maxWidth: {
+        layout: "1120px"
       }
     }
   },
@@ -20,4 +40,3 @@ const config: Config = {
 };
 
 export default config;
-

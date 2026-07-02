@@ -27,9 +27,14 @@ export function ScholarshipTierPicker({ value, onChange, error }: ScholarshipTie
   const showCustomFields = value.enrollment === "others";
 
   return (
-    <div className="rounded-2xl border border-[#d7e2d4] bg-white p-5">
-      <div className="mb-1 text-sm font-bold text-[#0b1f12]">Your scholarship</div>
-      <p className="mb-4 text-[13px] leading-6 text-[#5c6b5e]">Select one so Tamsi checks the right retention threshold.</p>
+    <div className="workflow-card">
+      <div className="workflow-card-header">
+        <div>
+          <h2 className="workflow-card-title">Your scholarship</h2>
+          <p className="workflow-card-desc">Select one so Tamsi checks the right retention threshold.</p>
+        </div>
+      </div>
+      <div className="workflow-card-body">
       <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Scholarship tier">
         {OPTIONS.map((option) => {
           const selected = option === value.enrollment;
@@ -37,11 +42,7 @@ export function ScholarshipTierPicker({ value, onChange, error }: ScholarshipTie
           return (
             <button
               aria-checked={selected}
-              className={
-                selected
-                  ? "rounded-[10px] border border-[#0e6b2e] bg-[#0e6b2e] px-3.5 py-2 text-[12.5px] font-bold text-white shadow-[0_4px_12px_rgba(14,107,46,.25)]"
-                  : "rounded-[10px] border border-[#d7e2d4] bg-[#f6faf4] px-3.5 py-2 text-[12.5px] font-bold text-[#5c6b5e] transition hover:border-[#b9cdb3] hover:text-[#0a4d21]"
-              }
+              className={selected ? "chip chip--active" : "chip"}
               key={option}
               onClick={() => onChange({ ...value, enrollment: option })}
               role="radio"
@@ -56,9 +57,9 @@ export function ScholarshipTierPicker({ value, onChange, error }: ScholarshipTie
       {showCustomFields ? (
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.05em] text-[#5c6b5e]">Scholarship name</span>
+            <span className="form-label text-[11px] uppercase tracking-[0.05em] text-muted">Scholarship name</span>
             <input
-              className="w-full rounded-[10px] border border-[#d7e2d4] bg-[#f6faf4] px-3 py-2.5 text-sm text-[#0b1f12] outline-none focus:border-[#0e6b2e] focus:bg-white"
+              className="form-input"
               onChange={(event) => onChange({ ...value, customName: event.target.value })}
               placeholder="e.g. Academic scholarship"
               type="text"
@@ -66,9 +67,9 @@ export function ScholarshipTierPicker({ value, onChange, error }: ScholarshipTie
             />
           </label>
           <label className="block">
-            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.05em] text-[#5c6b5e]">Maintaining grade</span>
+            <span className="form-label text-[11px] uppercase tracking-[0.05em] text-muted">Maintaining grade</span>
             <input
-              className="w-full rounded-[10px] border border-[#d7e2d4] bg-[#f6faf4] px-3 py-2.5 text-sm font-mono text-[#0b1f12] outline-none focus:border-[#0e6b2e] focus:bg-white"
+              className="form-input font-mono"
               inputMode="decimal"
               max={4}
               min={0.5}
@@ -82,36 +83,31 @@ export function ScholarshipTierPicker({ value, onChange, error }: ScholarshipTie
         </div>
       ) : null}
 
-      {error ? <p className="mt-3 text-sm font-semibold text-[#9a2f20]">{error}</p> : null}
+      {error ? <p className="mt-3 text-sm font-semibold text-danger">{error}</p> : null}
+      </div>
     </div>
   );
 }
 
-export function pickerValueFromPreferences(preferences: {
-  scholarshipEnrollment: ScholarshipEnrollmentTier;
-  customScholarshipName?: string;
-  customMaintainingGrade?: number | null;
-}): ScholarshipPickerValue {
-  return {
-    enrollment: preferences.scholarshipEnrollment,
-    customName: preferences.customScholarshipName ?? "",
-    customMaintainingGrade:
-      preferences.customMaintainingGrade !== null && preferences.customMaintainingGrade !== undefined
-        ? String(preferences.customMaintainingGrade)
-        : ""
-  };
-}
-
-export function parseMaintainingGrade(raw: string): number | null {
-  const trimmed = raw.trim();
+export function parseMaintainingGrade(value: string): number | null {
+  const trimmed = value.trim();
   if (!trimmed) {
     return null;
   }
 
   const parsed = Number(trimmed);
-  if (!Number.isFinite(parsed) || parsed < 0.5 || parsed > 4) {
-    return null;
-  }
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
-  return Math.round(parsed * 100) / 100;
+export function pickerValueFromPreferences(preferences: {
+  scholarshipEnrollment: ScholarshipEnrollmentTier;
+  customScholarshipName: string;
+  customMaintainingGrade: number | null;
+}): ScholarshipPickerValue {
+  return {
+    enrollment: preferences.scholarshipEnrollment,
+    customName: preferences.customScholarshipName,
+    customMaintainingGrade:
+      preferences.customMaintainingGrade === null ? "" : String(preferences.customMaintainingGrade)
+  };
 }

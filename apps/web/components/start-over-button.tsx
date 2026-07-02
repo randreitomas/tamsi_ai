@@ -14,7 +14,7 @@ export function StartOverButton({ className = "", label = "Start over" }: StartO
 
   return (
     <button
-      className={`inline-flex items-center gap-2 text-sm font-bold text-[#5c6b5e] transition hover:text-[#0a4d21] ${className}`}
+      className={`inline-flex items-center gap-2 text-sm font-bold text-muted transition hover:text-accent ${className}`}
       onClick={() => {
         clearAllSessionData();
         router.push("/upload");

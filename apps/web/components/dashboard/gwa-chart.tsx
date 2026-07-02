@@ -68,24 +68,24 @@ export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChart
         id: "magna",
         bottom: gwaToHeight(FEU_HONORS_THRESHOLDS.magnaCumLaude),
         label: `Magna ${FEU_HONORS_THRESHOLDS.magnaCumLaude.toFixed(1)}`,
-        lineClassName: "border-dashed border-[#9ab394]",
-        labelClassName: "text-[#5c6b5e] bg-white"
+        lineClassName: "border-dashed border-line",
+        labelClassName: "text-muted bg-elevated"
       },
       cumulativeLine !== null
         ? {
             id: "you",
             bottom: cumulativeLine,
             label: `You ${cumulativeGwa?.toFixed(2)}`,
-            lineClassName: "border-solid border-[#f5b800]",
-            labelClassName: "rounded bg-[#fbe8a6] text-[#6b5300]"
+            lineClassName: "border-solid border-[var(--gold)]",
+            labelClassName: "rounded bg-[var(--gold-soft)] text-[#6b5300]"
           }
         : null,
       {
         id: "cum-laude",
         bottom: gwaToHeight(FEU_HONORS_THRESHOLDS.cumLaude),
         label: `Cum Laude ${FEU_HONORS_THRESHOLDS.cumLaude.toFixed(1)}`,
-        lineClassName: "border-dashed border-[#c77a12]",
-        labelClassName: "text-[#c77a12] bg-white"
+        lineClassName: "border-dashed border-warning",
+        labelClassName: "text-warning bg-elevated"
       }
     ].filter((annotation): annotation is ChartAnnotation => annotation !== null)
   );
@@ -94,23 +94,23 @@ export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChart
     <section>
       <div className="mb-[22px] flex flex-wrap items-end justify-between gap-3.5">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[#5c6b5e]">Cumulative GWA</div>
-          <div className="mt-0.5 text-[30px] font-extrabold leading-none tracking-[-0.01em] text-[#0a4d21]">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted">Cumulative GWA</div>
+          <div className="mt-0.5 text-[30px] font-extrabold leading-none tracking-[-0.01em] text-ink">
             {cumulativeGwa?.toFixed(2) ?? "—"}{" "}
-            <small className="text-[13px] font-medium text-[#5c6b5e]">· {totalCompletedUnits} units</small>
+            <small className="text-[13px] font-medium text-muted">· {totalCompletedUnits} units</small>
           </div>
         </div>
-        <div className="flex flex-wrap gap-3.5 text-[11.5px] text-[#5c6b5e]">
+        <div className="flex flex-wrap gap-3.5 text-[11.5px] text-muted">
           <span className="inline-flex items-center gap-1.5">
-            <i className="inline-block size-[11px] rounded-[3px] bg-gradient-to-b from-[#1e8a4c] to-[#0e6b2e]" />
+            <i className="inline-block size-[11px] rounded-[3px] bg-gradient-to-b from-[#23994f] to-accent" />
             Above Cum Laude
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <i className="inline-block size-[11px] rounded-[3px] bg-gradient-to-b from-[#e0a33a] to-[#c77a12]" />
+            <i className="inline-block size-[11px] rounded-[3px] bg-gradient-to-b from-[#e6ac45] to-warning" />
             Below Cum Laude
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <i className="inline-block size-[11px] rounded-[3px] border-[1.5px] border-dashed border-[#7fa8c9] bg-[#e3eff7]" />
+            <i className="inline-block size-[11px] rounded-[3px] border-[1.5px] border-dashed border-muted-light bg-canvas" />
             In progress
           </span>
         </div>
@@ -119,10 +119,10 @@ export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChart
       <div className="flex items-start gap-2">
         <div className="relative min-w-0 flex-1 pl-[34px]">
           <div className="pointer-events-none absolute left-0 top-0 z-[4] h-[180px] w-[30px]">
-            <span className="absolute bottom-full right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">4.0</span>
-            <span className="absolute bottom-[60%] right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.6</span>
-            <span className="absolute bottom-[40%] right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.4</span>
-            <span className="absolute bottom-0 right-1.5 translate-y-1/2 font-mono text-[10px] text-[#5c6b5e]">3.0</span>
+            <span className="absolute bottom-full right-1.5 translate-y-1/2 font-mono text-[10px] text-muted">4.0</span>
+            <span className="absolute bottom-[60%] right-1.5 translate-y-1/2 font-mono text-[10px] text-muted">3.6</span>
+            <span className="absolute bottom-[40%] right-1.5 translate-y-1/2 font-mono text-[10px] text-muted">3.4</span>
+            <span className="absolute bottom-0 right-1.5 translate-y-1/2 font-mono text-[10px] text-muted">3.0</span>
           </div>
 
           <div className="relative h-[180px] border-b-2 border-[#c9d6c5]">
@@ -152,7 +152,7 @@ export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChart
                         ? "absolute bottom-full left-1/2 mb-1 block -translate-x-1/2 whitespace-nowrap font-mono text-xs font-bold tracking-[1px] text-[#7fa8c9]"
                         : belowHonors
                           ? "absolute bottom-full left-1/2 mb-1 block -translate-x-1/2 whitespace-nowrap font-mono text-xs font-bold text-[#c77a12]"
-                          : "absolute bottom-full left-1/2 mb-1 block -translate-x-1/2 whitespace-nowrap font-mono text-xs font-bold text-[#0a4d21]"
+                          : "absolute bottom-full left-1/2 mb-1 block -translate-x-1/2 whitespace-nowrap font-mono text-xs font-bold text-accent-dark"
                     }
                   >
                     {term.inProgress ? "···" : formatGwa(displayGwa)}
@@ -176,7 +176,7 @@ export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChart
 
           <div className="flex justify-around gap-2 px-1 pt-2">
             {terms.map((term) => (
-              <span className="min-w-0 flex-1 truncate text-center font-mono text-[10px] text-[#5c6b5e]" key={term.term}>
+              <span className="min-w-0 flex-1 truncate text-center font-mono text-[10px] text-muted" key={term.term}>
                 {term.shortLabel}
               </span>
             ))}
@@ -207,12 +207,12 @@ export function GwaChart({ cumulativeGwa, totalCompletedUnits, terms }: GwaChart
         ))}
       </div>
 
-      <p className="mt-4 text-[12.5px] leading-6 text-[#5c6b5e]">
+      <p className="mt-4 text-[12.5px] leading-6 text-muted">
         Axis zoomed to 3.0–4.0 to show term-to-term movement.
         {terms.some((term) => term.inProgress) ? (
           <>
             {" "}
-            The final bar is the term still <b className="text-[#0a4d21]">in progress</b>.
+            The final bar is the term still <b className="text-accent-dark">in progress</b>.
           </>
         ) : null}
       </p>

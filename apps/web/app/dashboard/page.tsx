@@ -2,16 +2,19 @@
 
 import { buildAdvisorMetrics, computeAcademicSnapshot, type AcademicSnapshot } from "@tamsi/academic-engine";
 import { reviewCourseSchema, type ReviewCourse } from "@tamsi/types";
-import { ArrowLeft, BarChart3 } from "lucide-react";
-import Link from "next/link";
+import { BarChart3 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import { AdvicePanel } from "../../components/dashboard/advice-panel";
 import { GwaChart } from "../../components/dashboard/gwa-chart";
 import { StandingGauge } from "../../components/dashboard/standing-gauge";
 import { StatusCards } from "../../components/dashboard/status-cards";
+import { AppFooter } from "../../components/app-footer";
+import { PageIntro } from "../../components/page-intro";
+import { SectionCard } from "../../components/section-card";
+import { SiteTopbar } from "../../components/site-topbar";
 import { StartOverButton } from "../../components/start-over-button";
-import { Card } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import {
   fingerprintCourses,
   preferencesToSnapshotOptions,
@@ -142,21 +145,27 @@ export default function DashboardPage() {
   }, [recompute]);
 
   if (!loaded) {
-    return <main className="grid min-h-screen place-items-center bg-[#ecf2ea] text-[#0b1f12]">Computing metrics...</main>;
+    return <main className="app-shell app-shell--workflow grid min-h-screen place-items-center text-ink">Computing metrics...</main>;
   }
 
   if (!snapshot) {
     return (
-      <main className="min-h-screen bg-[#ecf2ea] px-6 py-10 text-[#0b1f12]">
-        <div className="mx-auto max-w-[720px] text-center">
-          <BarChart3 aria-hidden="true" className="mx-auto mb-4 text-[#0e6b2e]" size={40} />
-          <h1 className="text-3xl font-extrabold tracking-[-0.02em]">No confirmed grades yet</h1>
-          <p className="mt-3 text-[#5c6b5e]">Upload screenshots and confirm your extraction before opening the dashboard.</p>
-          <Link className="mt-6 inline-flex rounded-xl bg-[#0e6b2e] px-5 py-3 text-sm font-bold text-white" href="/upload">
-            Go to upload
-          </Link>
-        </div>
-      </main>
+      <div className="app-shell app-shell--workflow">
+        <SiteTopbar variant="fixed" />
+        <main className="app-container">
+          <div className="workflow-empty-state">
+            <div className="workflow-empty-icon">
+              <BarChart3 aria-hidden="true" size={28} />
+            </div>
+            <h1 className="page-title text-ink">No confirmed grades yet</h1>
+            <p className="mt-3 text-muted">Upload screenshots and confirm your extraction before opening the dashboard.</p>
+            <Button className="mt-6" href="/upload">
+              Go to upload
+            </Button>
+          </div>
+        </main>
+        <AppFooter />
+      </div>
     );
   }
 
@@ -165,74 +174,56 @@ export default function DashboardPage() {
   const fingerprint = fingerprintCourses(courses, preferences);
 
   return (
-    <main className="min-h-screen bg-[#ecf2ea] px-6 py-10 text-[#0b1f12]">
-      <div className="mx-auto max-w-[1080px]">
-        <header className="mb-9 flex items-center justify-between gap-4">
-          <Link className="inline-flex items-center gap-2 text-sm font-bold text-[#0a4d21]" href="/review">
-            <ArrowLeft aria-hidden="true" size={17} />
-            Review
-          </Link>
-          <StartOverButton />
-        </header>
+    <div className="app-shell app-shell--workflow">
+      <SiteTopbar end={<StartOverButton />} variant="fixed" />
 
-        <section className="mb-8 text-center">
-          <div className="mb-3 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#0e6b2e]">Steps 4 & 5</div>
-          <h1 className="mx-auto max-w-[18ch] text-[clamp(32px,5vw,48px)] font-extrabold leading-[1.04] tracking-[-0.02em]">
-            Your standing — computed and explained.
-          </h1>
-          <p className="mx-auto mt-4 max-w-[58ch] text-lg leading-8 text-[#33483a]">
-            Tamsi calculated your GWA, scholarship position, and Latin honors using FEU Tech thresholds. Grades stay in this tab only — nothing is saved on our servers.
-          </p>
-        </section>
+      <main className="app-container--brief">
+        <PageIntro
+          description="Tamsi calculated your GWA, scholarship position, and Latin honors using FEU Tech thresholds. Grades stay in this tab only — nothing is saved on our servers."
+          eyebrow="Step 4"
+          title="Your standing — computed and explained."
+        />
 
-        <div className="grid gap-[18px]">
-          <Card>
-            <div className="flex items-center gap-3.5 border-b border-[#d7e2d4] bg-gradient-to-b from-[#fcfefb] to-[#f6faf4] px-5 py-[18px]">
-              <span className="grid size-[30px] shrink-0 place-items-center rounded-[9px] bg-[#0e6b2e] font-mono text-[13px] font-bold text-white">4</span>
-              <div>
-                <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Compute — your GWA across terms</h2>
-                <p className="text-[12.5px] text-[#5c6b5e]">Every term weighted and charted, so you see the trend, not just the number.</p>
-              </div>
-            </div>
-            <div className="p-[22px]">
-              <GwaChart
+        <div className="grid gap-5">
+          <SectionCard
+            description="Every term weighted and charted, so you see the trend, not just the number."
+            step={4}
+            title="Compute — your GWA across terms"
+          >
+            <GwaChart
+              cumulativeGwa={snapshot.cumulativeGwa}
+              terms={snapshot.terms}
+              totalCompletedUnits={snapshot.totalCompletedUnits}
+            />
+          </SectionCard>
+
+          <SectionCard
+            description="Where you are now, and what each goal needs this term."
+            step={5}
+            title="Your standing & your plan"
+          >
+            <div className="grid gap-7 lg:grid-cols-[248px_1fr]">
+              <StandingGauge
+                academicYearLabel={snapshot.academicYearLabel}
                 cumulativeGwa={snapshot.cumulativeGwa}
-                terms={snapshot.terms}
                 totalCompletedUnits={snapshot.totalCompletedUnits}
               />
-            </div>
-          </Card>
-
-          <Card>
-            <div className="flex items-center gap-3.5 border-b border-[#d7e2d4] bg-gradient-to-b from-[#fcfefb] to-[#f6faf4] px-5 py-[18px]">
-              <span className="grid size-[30px] shrink-0 place-items-center rounded-[9px] bg-[#0e6b2e] font-mono text-[13px] font-bold text-white">5</span>
               <div>
-                <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Your standing & your plan</h2>
-                <p className="text-[12.5px] text-[#5c6b5e]">Where you are now, and what each goal needs this term.</p>
-              </div>
-            </div>
-            <div className="p-[22px]">
-              <div className="grid gap-7 lg:grid-cols-[248px_1fr]">
-                <StandingGauge
-                  academicYearLabel={snapshot.academicYearLabel}
-                  cumulativeGwa={snapshot.cumulativeGwa}
-                  totalCompletedUnits={snapshot.totalCompletedUnits}
+                <StatusCards snapshot={snapshot} />
+                <AdvicePanel
+                  advice={advice}
+                  connected={chatGptConnected}
+                  error={adviceError}
+                  loading={adviceLoading}
+                  onRetry={() => fetchAdvice(advisorMetrics, snapshot, fingerprint)}
                 />
-                <div>
-                  <StatusCards snapshot={snapshot} />
-                  <AdvicePanel
-                    advice={advice}
-                    connected={chatGptConnected}
-                    error={adviceError}
-                    loading={adviceLoading}
-                    onRetry={() => fetchAdvice(advisorMetrics, snapshot, fingerprint)}
-                  />
-                </div>
               </div>
             </div>
-          </Card>
+          </SectionCard>
         </div>
-      </div>
-    </main>
+      </main>
+
+      <AppFooter />
+    </div>
   );
 }

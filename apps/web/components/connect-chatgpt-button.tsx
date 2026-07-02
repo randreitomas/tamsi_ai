@@ -1,9 +1,8 @@
 "use client";
 
 import { Bot, CheckCircle2, Copy, ExternalLink, LoaderCircle } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
+import { Button, ExternalButtonLink } from "./ui/button";
 
 type ConnectChatGptButtonProps = {
   className?: string;
@@ -109,17 +108,15 @@ export function ConnectChatGptButton({
   if (connected) {
     if (connectedHref) {
       return (
-        <Link href={connectedHref}>
-          <Button className={className} variant={variant}>
-            <CheckCircle2 aria-hidden="true" size={18} />
-            {connectedLabel}
-          </Button>
-        </Link>
+        <Button className={className} href={connectedHref} variant={variant}>
+          <CheckCircle2 aria-hidden="true" size={18} />
+          {connectedLabel}
+        </Button>
       );
     }
 
     return (
-      <div className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-[#c2e6cd] bg-white px-4 text-sm font-bold text-[#1e8a4c]">
+      <div className="inline-flex h-12 items-center gap-2 rounded-full border border-[#c2e6cd] bg-elevated px-5 text-sm font-bold text-success">
         <CheckCircle2 aria-hidden="true" size={18} />
         {connectedLabel}
       </div>
@@ -133,21 +130,21 @@ export function ConnectChatGptButton({
         {loading ? "Starting..." : label}
       </Button>
 
-      {error && !dialogOpen ? <p className="mt-2 text-sm text-[#c0392b]">{error}</p> : null}
+      {error && !dialogOpen ? <p className="mt-2 text-sm text-danger">{error}</p> : null}
 
       {dialogOpen && session ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b1f12]/55 p-4">
-          <div className="w-full max-w-lg rounded-2xl border border-[#d7e2d4] bg-white p-6 shadow-2xl">
-            <div className="mb-4 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#0e6b2e]">Connect ChatGPT</div>
-            <h2 className="text-2xl font-extrabold tracking-[-0.02em] text-[#0b1f12]">Sign in with your ChatGPT account</h2>
-            <p className="mt-3 text-sm leading-6 text-[#5c6b5e]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(11,31,18,0.45)] p-4 backdrop-blur-sm">
+          <div className="app-card w-full max-w-lg p-6 shadow-card-lg">
+            <div className="eyebrow mb-4">Connect ChatGPT</div>
+            <h2 className="page-title text-ink">Sign in with your ChatGPT account</h2>
+            <p className="mt-3 text-sm leading-6 text-muted">
               Open the Codex device page, sign in, and enter this one-time code. Tamsi will use your own ChatGPT entitlement for Vision and advice.
             </p>
 
-            <div className="mt-5 rounded-2xl border border-[#d7e2d4] bg-[#f6faf4] p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-[#5c6b5e]">Your code</div>
+            <div className="mt-5 rounded-lg border border-line bg-[#f6faf4] p-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">Your code</div>
               <div className="mt-2 flex items-center justify-between gap-3">
-                <code className="font-mono text-2xl font-bold tracking-[0.18em] text-[#0a4d21]">{session.userCode}</code>
+                <code className="font-mono text-2xl font-bold tracking-[0.18em] text-accent-dark">{session.userCode}</code>
                 <Button type="button" variant="secondary" onClick={() => void copyUserCode()}>
                   <Copy aria-hidden="true" size={16} />
                   {copied ? "Copied" : "Copy"}
@@ -156,22 +153,20 @@ export function ConnectChatGptButton({
             </div>
 
             <div className="mt-4 flex flex-wrap justify-center gap-3">
-              <a href={session.verificationUrl} rel="noreferrer" target="_blank">
-                <Button type="button" variant="primary">
-                  <ExternalLink aria-hidden="true" size={16} />
-                  Open ChatGPT sign-in
-                </Button>
-              </a>
+              <ExternalButtonLink href={session.verificationUrl} rel="noreferrer" target="_blank" variant="primary">
+                <ExternalLink aria-hidden="true" size={16} />
+                Open ChatGPT sign-in
+              </ExternalButtonLink>
               <Button disabled={polling} type="button" variant="secondary" onClick={() => void completeDeviceAuth()}>
                 {polling ? <LoaderCircle aria-hidden="true" className="animate-spin" size={16} /> : null}
                 {polling ? "Waiting for sign-in..." : "I entered the code"}
               </Button>
             </div>
 
-            {error ? <p className="mt-4 text-sm text-[#c0392b]">{error}</p> : null}
+            {error ? <p className="mt-4 text-sm text-danger">{error}</p> : null}
 
             <button
-              className="mt-5 block w-full text-center text-sm font-semibold text-[#5c6b5e] underline"
+              className="mt-5 block w-full text-center text-sm font-semibold text-muted underline"
               type="button"
               onClick={() => {
                 setDialogOpen(false);

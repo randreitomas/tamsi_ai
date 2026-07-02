@@ -2,15 +2,22 @@
 
 import { useEffect, useState } from "react";
 
-const PREVIEW_ROWS = [
+type PreviewRow = {
+  code: string;
+  title: string;
+  units: string;
+  midterm: string;
+  final: string;
+};
+
+const PREVIEW_ROWS: PreviewRow[] = [
   { code: "CCS0001", title: "INTRODUCTION TO COMPUTING (LEC)", units: "2", midterm: "3.5", final: "4.0" },
   { code: "GED0009", title: "READINGS IN PHILIPPINE HISTORY", units: "3", midterm: "3.5", final: "4.0" },
   { code: "CS0001", title: "DISCRETE STRUCTURES 1", units: "3", midterm: "3.0", final: "3.5" }
-] as const;
+];
 
 const FIELD_ORDER = ["code", "title", "units", "midterm", "final"] as const;
 
-type PreviewRow = (typeof PREVIEW_ROWS)[number];
 type PreviewField = (typeof FIELD_ORDER)[number];
 type DisplayRow = Record<PreviewField, string>;
 type Cursor = { row: number; field: PreviewField };
@@ -70,9 +77,7 @@ export function LandingPreviewTable() {
 
         const current = PREVIEW_ROWS.map(() => emptyRow());
 
-        for (let rowIndex = 0; rowIndex < PREVIEW_ROWS.length; rowIndex++) {
-          const source = PREVIEW_ROWS[rowIndex];
-
+        for (const [rowIndex, source] of PREVIEW_ROWS.entries()) {
           for (const field of FIELD_ORDER) {
             const full = source[field];
 
@@ -81,7 +86,8 @@ export function LandingPreviewTable() {
                 return;
               }
 
-              current[rowIndex] = { ...current[rowIndex], [field]: full.slice(0, charIndex) };
+              const existing = current[rowIndex] ?? emptyRow();
+              current[rowIndex] = { ...existing, [field]: full.slice(0, charIndex) };
               setDisplayRows(current.map((row) => ({ ...row })));
               setCursor(charIndex < full.length ? { row: rowIndex, field } : null);
 
@@ -111,7 +117,8 @@ export function LandingPreviewTable() {
     <>
       <div className="space-y-3 md:hidden">
         {displayRows.map((row, rowIndex) => {
-          if (!rowStarted(row)) {
+          const previewRow = PREVIEW_ROWS[rowIndex];
+          if (!previewRow || !rowStarted(row)) {
             return null;
           }
 
@@ -120,7 +127,7 @@ export function LandingPreviewTable() {
           return (
             <div
               className={`preview-table-card rounded-lg border border-line bg-canvas p-4 ${active ? "preview-table-card--active" : ""}`}
-              key={PREVIEW_ROWS[rowIndex].code}
+              key={previewRow.code}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -182,7 +189,8 @@ export function LandingPreviewTable() {
           </thead>
           <tbody>
             {displayRows.map((row, rowIndex) => {
-              if (!rowStarted(row)) {
+              const previewRow = PREVIEW_ROWS[rowIndex];
+              if (!previewRow || !rowStarted(row)) {
                 return null;
               }
 
@@ -191,7 +199,7 @@ export function LandingPreviewTable() {
               return (
                 <tr
                   className={`preview-table-row border-b border-line/60 last:border-0 ${active ? "preview-table-row--active" : ""}`}
-                  key={PREVIEW_ROWS[rowIndex].code}
+                  key={previewRow.code}
                 >
                   <td className="px-2.5 py-3 font-mono text-[12.5px] font-bold text-accent-dark">
                     <TypedValue

@@ -701,8 +701,8 @@ textarea {
 
   .app-footer {
     padding: 28px var(--layout-gutter);
-    border-top: 1px solid #1a1f1c;
-    border-bottom: 1px solid #1a1f1c;
+    border-top: 1px solid rgba(11, 31, 18, 0.1);
+    border-bottom: 1px solid rgba(11, 31, 18, 0.1);
     background: #ffffff;
     text-align: center;
     font-size: 12.5px;

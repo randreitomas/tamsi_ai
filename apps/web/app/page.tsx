@@ -44,7 +44,6 @@ export default function Home() {
 
       <main className="overflow-x-hidden">
         <section className="hero-content">
-          <span className="chip chip--accent mb-5">FEU Tech AI Campus Launch Hackathon</span>
           <h1 className="hero-headline text-ink">
             Know your standing. <span className="headline-gradient">Act on it.</span>
           </h1>

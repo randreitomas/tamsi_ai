@@ -410,10 +410,14 @@ textarea {
     }
   }
 
+  .hero-page--landing .hero-content {
+    padding-bottom: 48px;
+  }
+
   .landing-how-it-works {
     max-width: var(--layout-max);
     margin: 0 auto;
-    padding: 80px var(--layout-gutter) 64px;
+    padding: 48px var(--layout-gutter) 64px;
     text-align: center;
   }
 
@@ -426,9 +430,10 @@ textarea {
 
   .landing-steps-grid {
     display: grid;
-    gap: 20px;
-    margin-top: 48px;
+    gap: 24px;
+    margin-top: 40px;
     text-align: left;
+    align-items: stretch;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
@@ -439,8 +444,12 @@ textarea {
   }
 
   @media (max-width: 640px) {
+    .hero-page--landing .hero-content {
+      padding-bottom: 32px;
+    }
+
     .landing-how-it-works {
-      padding-top: 56px;
+      padding-top: 32px;
       padding-bottom: 48px;
     }
 
@@ -450,32 +459,39 @@ textarea {
   }
 
   .landing-step-card {
-    background: var(--bg-elevated);
-    border: 1px solid rgba(11, 31, 18, 0.06);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 1px 3px rgba(11, 31, 18, 0.04);
-    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid rgba(11, 31, 18, 0.08);
+    border-radius: 14px;
+    background: #ffffff;
+    padding: 28px 26px 30px;
+    box-shadow:
+      0 1px 2px rgba(11, 31, 18, 0.04),
+      0 6px 20px rgba(11, 31, 18, 0.05);
   }
 
   .landing-step-number {
     display: block;
-    margin-bottom: 16px;
-    font-size: 14px;
-    font-weight: 600;
+    margin-bottom: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     color: var(--accent);
   }
 
   .landing-step-title {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 700;
-    letter-spacing: -0.01em;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
     color: var(--text);
   }
 
   .landing-step-body {
-    margin-top: 10px;
+    margin-top: 12px;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.65;
     color: var(--muted);
   }
 
@@ -700,17 +716,40 @@ textarea {
   }
 
   .app-footer {
-    padding: 32px var(--layout-gutter) 48px;
+    padding: 28px var(--layout-gutter);
+    border-top: 1px solid #1a1f1c;
+    border-bottom: 1px solid #1a1f1c;
+    background: #ffffff;
     text-align: center;
-    font-size: 12px;
-    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: #8a918c;
+  }
+
+  .app-footer-line {
+    margin: 0;
+  }
+
+  .app-footer-line--secondary {
+    margin-top: 3px;
+  }
+
+  .app-footer-brand {
+    font-weight: 700;
+    color: #5c6b5e;
+  }
+
+  .app-footer-sep {
+    color: #b0b8b2;
   }
 
   .app-footer a {
-    color: var(--accent-dark);
+    color: inherit;
+    text-decoration: none;
   }
 
   .app-footer a:hover {
+    color: var(--text);
     text-decoration: underline;
   }
 
